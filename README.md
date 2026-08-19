@@ -104,11 +104,28 @@ cp agents/builder.md ~/.claude/agents/builder.md
 
 歡迎回報你在其他專案上使用的結果——尤其是上面列的「還沒驗證過」的情境。
 
+## 跟 obra/superpowers 的關係
+
+**先講清楚，省得你自己發現時覺得被誤導**：[`obra/superpowers`](https://github.com/obra/superpowers)
+（27 萬星以上，持續更新中）底下的 `writing-plans` / `executing-plans` 兩個 skill，
+做的事跟 `hfg` / `builder` 高度相似——強模型寫規劃書、存成文件、派 subagent 逐項執行、
+卡住就停不要瞎猜。**這是目前這個生態圈裡最成熟、採用度最高的同類方案**，整合了
+TDD、git worktree、code review dispatch 等一整套方法論，比 `hfg` 完整得多。
+
+`hfg` 不是要取代它。差異在於它假設的專案條件：`superpowers` 的流程預設你在用 git worktree、
+走 TDD 紅綠燈、每個小步驟都 commit。`hfg` 是在一個**不是 git repo、沒有標準測試框架的
+單檔案舊專案**上磨出來的，所以它明確處理「沒有 git 安全網怎麼辦」「專案沒有自動測試時
+驗收判準要怎麼寫」這類 `superpowers` 的前提不成立時的情境，而且多了一步「交付前機械稽核」——
+規劃書裡每個具體事實都要求規劃者重新真的跑一次指令查證，不能用印象或估計值。
+
+如果你的專案是 git repo、有 TDD 習慣，**直接用 `superpowers` 大概率比較好**——它更成熟、
+社群更大、涵蓋的情境更完整。`hfg` 適合的是它的前提不成立的那種舊專案。
+
 ## Acknowledgements
 
-這套方法論是實戰歸納的產物，靈感來自社群流傳的兩類概念（實作上與 `hfg`不重疊，
-特此註明供對照）：Matt Pocock 的 `/handoff`（解決 context 耗盡的交接文件）、
-以及 `obra/superpowers` 專案的 subagent-driven-development（分階段派工與 model selection）。
+這套方法論是實戰歸納的產物。開發過程中沒有參考過 `obra/superpowers` 的原始碼
+（上面那段比較是事後才做的），但社群裡流傳的概念確實有給過方向上的啟發，特此註明：
+Matt Pocock 的 `/handoff`（解決 context 耗盡的交接文件）。
 
 ## License
 
