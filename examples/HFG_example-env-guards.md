@@ -13,6 +13,8 @@
 - [ ] `node tests/run_tests.js` → **142 通過 / 0 失敗**
 - [ ] 檔案是 LF
 - [ ] 找得到 `function genRecordId` 與 `function loadUserAliasMap`
+- [ ] 這不是 Git 專案；先建立範圍 manifest：
+  `find . -type f ! -name '*.bak_*' -print | sort | while IFS= read -r f; do shasum "$f"; done > /tmp/hfg-example-env-guards.before.manifest`
 
 ---
 
@@ -34,7 +36,7 @@
 | 瀏覽器行為不變 | 步驟 5 | `genRecordId()` 仍回 UUID 格式字串 |
 | Node 可執行 | 步驟 4 | 不再需要 `sandbox.window` 也能跑 parser 相關測試 |
 | 版本碼 | 搜尋 `BUILD 0810` | 已變成 `BUILD 0810C` |
-| 回歸 | 人工確認 | 只有 `app.html` 與 `tests/run_tests.js` 有變動 |
+| 回歸 | `find . -type f ! -name '*.bak_*' -print \| sort \| while IFS= read -r f; do shasum "$f"; done > /tmp/hfg-example-env-guards.after.manifest; diff -u <(grep -vE '  \./(app\.html|tests/run_tests\.js)$' /tmp/hfg-example-env-guards.before.manifest) <(grep -vE '  \./(app\.html|tests/run_tests\.js)$' /tmp/hfg-example-env-guards.after.manifest)` | 無 diff 輸出；差異只允許 `app.html` 與 `tests/run_tests.js`，其中 `app.html` 預期變更、`tests/run_tests.js` 必須與第 3 節清單及本次測試內容一致 |
 
 ---
 

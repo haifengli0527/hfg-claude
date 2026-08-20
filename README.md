@@ -86,6 +86,23 @@ cp skills/hfg/SKILL.md ~/.claude/skills/hfg/SKILL.md
 cp agents/builder.md ~/.claude/agents/builder.md
 ```
 
+## 驗證
+
+本 repo 不需要 package manager 或第三方依賴。在 repo 根目錄執行：
+
+```bash
+python3 tests/run_tests.py
+```
+
+若目前不在 repo 根目錄，改用測試入口的絕對路徑：
+
+```bash
+python3 /path/to/hfg-claude/tests/run_tests.py
+```
+
+GitHub Actions 會在 Python 3.10、3.11、3.12 與 3.13 上執行相同測試，並檢查
+`git diff --check`。本地開發規範與 PR checklist 見 [`CONTRIBUTING.md`](CONTRIBUTING.md)。
+
 ## 使用方式
 
 ```
@@ -103,7 +120,7 @@ cp agents/builder.md ~/.claude/agents/builder.md
 
 規劃書長什麼樣子，見 [`examples/HFG_example-env-guards.md`](examples/HFG_example-env-guards.md)——
 一份完整的範例（改了兩個函式讓它們能在 Node 環境安全執行、加測試），
-展示九個區塊模板實際填出來的樣子。
+展示十個區塊（0–8 加 7b）模板實際填出來的樣子。
 
 ## 已知限制
 
@@ -147,3 +164,15 @@ Matt Pocock 的 `/handoff`（解決 context 耗盡的交接文件）。
 ## License
 
 MIT，見 [`LICENSE`](LICENSE)。
+
+## 檔案清單
+
+- [`skills/hfg/SKILL.md`](skills/hfg/SKILL.md)：hfg 規劃 skill
+- [`agents/builder.md`](agents/builder.md)：builder subagent 行為契約
+- [`examples/HFG_example-env-guards.md`](examples/HFG_example-env-guards.md)：完整規劃書範例
+- [`tests/test_repo.py`](tests/test_repo.py)：repo 品質契約測試，並驗證 Markdown anchor、規劃書 section 與可執行驗收表一致性
+- [`tests/run_tests.py`](tests/run_tests.py)：本地測試入口
+- [`.github/workflows/ci.yml`](.github/workflows/ci.yml)：GitHub Actions CI
+- [`CONTRIBUTING.md`](CONTRIBUTING.md)：貢獻與驗證規範
+- [`CHANGELOG.md`](CHANGELOG.md)：變更紀錄
+- [`.gitignore`](.gitignore)：本地產物與規劃檔忽略規則

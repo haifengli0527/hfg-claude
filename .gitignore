@@ -1,0 +1,8 @@
+# Local project artifacts
+.DS_Store
+*.bak_*
+__pycache__/
+*.py[cod]
+
+# Generated handoff plans
+plans/
