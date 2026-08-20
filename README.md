@@ -12,6 +12,23 @@
 
 ---
 
+## TL;DR (English)
+
+`hfg` is a [Claude Code](https://docs.claude.com/claude-code) skill for handing off implementation
+work: a strong model plans, a weaker model (or a fresh session's `builder` subagent) builds. It
+generates a self-contained, literal, step-by-step spec — no placeholders, no "figure it out as you
+go" — so the executor never has to guess what the planner meant.
+
+The rest of this README, the skill file (`skills/hfg/SKILL.md`), and the example plan are all in
+Traditional Chinese, since that's the language this was built and battle-tested in. If you're
+comparing this to [`obra/superpowers`](https://github.com/obra/superpowers) (which does something
+similar, more comprehensively, at 270k+ stars): `hfg` was built for a project that doesn't fit
+superpowers' assumptions — not a git repo, no TDD workflow, no test framework. If your project has
+git + tests, superpowers is very likely the better fit. See "跟 obra/superpowers 的關係" below for
+the fuller comparison (Chinese; ask an LLM to translate if needed).
+
+---
+
 ## 解決什麼問題
 
 用強模型（例如 Opus）規劃、弱一點或另一個 session 的模型（例如 Sonnet）施工，
