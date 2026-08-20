@@ -103,7 +103,7 @@ GitHub Actions 會在 Python 3.10、3.11、3.12 與 3.13 上執行相同測試�
 
 規劃書長什麼樣子，見 [`examples/HFG_example-env-guards.md`](examples/HFG_example-env-guards.md)——
 一份完整的範例（改了兩個函式讓它們能在 Node 環境安全執行、加測試），
-展示九個區塊模板實際填出來的樣子。
+展示十個區塊（0–8 加 7b）模板實際填出來的樣子。
 
 ## 已知限制
 
@@ -153,7 +153,7 @@ MIT，見 [`LICENSE`](LICENSE)。
 - [`skills/hfg/SKILL.md`](skills/hfg/SKILL.md)：hfg 規劃 skill
 - [`agents/builder.md`](agents/builder.md)：builder subagent 行為契約
 - [`examples/HFG_example-env-guards.md`](examples/HFG_example-env-guards.md)：完整規劃書範例
-- [`tests/test_repo.py`](tests/test_repo.py)：repo 品質契約測試
+- [`tests/test_repo.py`](tests/test_repo.py)：repo 品質契約測試，並驗證 Markdown anchor、規劃書 section 與可執行驗收表一致性
 - [`tests/run_tests.py`](tests/run_tests.py)：本地測試入口
 - [`.github/workflows/ci.yml`](.github/workflows/ci.yml)：GitHub Actions CI
 - [`CONTRIBUTING.md`](CONTRIBUTING.md)：貢獻與驗證規範

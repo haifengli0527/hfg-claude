@@ -16,6 +16,25 @@ def read_document(path):
     return path.read_text(encoding="utf-8")
 
 
+def markdown_slug(heading):
+    heading = re.sub(r"<[^>]+>", "", heading).strip().lower()
+    heading = re.sub(r"[^\w\u0080-\uffff -]", "", heading)
+    return re.sub(r"\s+", "-", heading)
+
+
+def heading_anchors(text):
+    anchors = set()
+    for match in re.finditer(r"(?m)^#{1,6}\s+(.+?)\s*#*\s*$", text):
+        base = markdown_slug(match.group(1))
+        candidate = base
+        suffix = 1
+        while candidate in anchors:
+            candidate = f"{base}-{suffix}"
+            suffix += 1
+        anchors.add(candidate)
+    return anchors
+
+
 class RepositoryContractTests(unittest.TestCase):
     def test_skill_and_agent_frontmatter(self):
         for label, path in (("SKILL.md", DOCUMENTS["SKILL.md"]), ("builder.md", DOCUMENTS["builder.md"])):
@@ -32,10 +51,42 @@ class RepositoryContractTests(unittest.TestCase):
         for label, path in DOCUMENTS.items():
             text = read_document(path)
             for target in pattern.findall(text):
-                target = target.split("#", 1)[0].strip()
-                if not target or re.match(r"(?:[a-z][a-z0-9+.-]*:|//)", target, re.I):
+                file_target, separator, anchor = target.partition("#")
+                file_target = file_target.strip()
+                if not file_target and not separator:
                     continue
-                self.assertTrue((path.parent / target).resolve().is_file(), f"{label}: broken link {target}")
+                if file_target and re.match(r"(?:[a-z][a-z0-9+.-]*:|//)", file_target, re.I):
+                    continue
+                target_path = path if not file_target else (path.parent / file_target).resolve()
+                self.assertTrue(target_path.is_file(), f"{label}: broken link {file_target or target}")
+                if separator:
+                    self.assertIn(anchor, heading_anchors(read_document(target_path)), f"{label}: broken anchor #{anchor}")
+
+    def test_planning_sections_are_complete(self):
+        expected = {"0", "1", "2", "3", "4", "5", "6", "7", "7b", "8"}
+        section_pattern = re.compile(r"(?m)^##\s+(0|1|2|3|4|5|6|7b|7|8)\.")
+        for label in ("SKILL.md", "example"):
+            sections = set(section_pattern.findall(read_document(DOCUMENTS[label])))
+            self.assertEqual(expected, sections, f"{label}: planning sections mismatch")
+
+    def test_readme_does_not_claim_nine_sections(self):
+        text = read_document(DOCUMENTS["README.md"])
+        self.assertNotRegex(text, r"九個區塊")
+        self.assertRegex(text, r"十個區塊（0–8 加 7b）")
+
+    def test_example_acceptance_rows_are_executable(self):
+        text = read_document(DOCUMENTS["example"])
+        table = text.split("## 1. 目標與驗收標準", 1)[1].split("## 2.", 1)[0]
+        rows = [line for line in table.splitlines() if line.startswith("|") and "---" not in line]
+        self.assertGreater(len(rows), 1)
+        semantic_outputs = ("通過", "失敗", "輸出", "變更", "字串", "測試", "UUID", "項數", "0810", "true", "無 diff", "一致")
+        for row in rows:
+            self.assertGreaterEqual(row.count("|"), 3, row)
+            command = row.split("|", 2)[2].strip()
+            expected = row.rsplit("|", 2)[1].strip()
+            self.assertTrue(command, row)
+            self.assertNotIn("人工確認", command, row)
+            self.assertTrue(any(token in expected for token in semantic_outputs), row)
 
     def test_skill_core_sections(self):
         text = read_document(DOCUMENTS["SKILL.md"])
