@@ -90,7 +90,7 @@ class RepositoryContractTests(unittest.TestCase):
 
     def test_skill_core_sections(self):
         text = read_document(DOCUMENTS["SKILL.md"])
-        for phrase in ("偵察", "提問閘門", "交付前的機械稽核", "規劃書模板", "卡住時怎麼辦"):
+        for phrase in ("偵察", "提問閘門", "交付前的機械稽核", "規劃書模板", "卡住時怎麼辦", "hfg_preflight.py", "跨模型覆核"):
             self.assertIn(phrase, text)
 
     def test_builder_contract(self):
@@ -106,7 +106,7 @@ class RepositoryContractTests(unittest.TestCase):
 
     def test_readme_install_sources_exist(self):
         text = read_document(DOCUMENTS["README.md"])
-        for source in ("skills/hfg/SKILL.md", "agents/builder.md"):
+        for source in ("skills/hfg/SKILL.md", "agents/builder.md", "skills/hfg/scripts/hfg_preflight.py"):
             self.assertIn(source, text)
             self.assertTrue((ROOT / source).is_file(), f"missing installation source {source}")
 

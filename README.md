@@ -78,11 +78,16 @@ the fuller comparison (Chinese; ask an LLM to translate if needed).
 所以規劃書模板裡有專門的「交付前機械稽核」一步，要求規劃者在交付前重跑每一條要寫進判準的指令，
 而不是憑印象或估計值下判準。
 
+**後續兩輪的紀錄**（2026-08-27 一份規劃書五次中斷、2026-09 九份規劃書）都寫在 `SKILL.md` 裡：
+第二輪的根因是「有指令輸出但量錯了東西」，補成 A2 dry-run、A3 性質判準、E 修訂稽核；
+第三輪數字類錯誤歸零，改栽在 `old_string` 縮排，補成偵察第 6 條與 A0 機械預檢（`hfg_preflight.py`）。
+
 ## 安裝
 
 ```bash
-mkdir -p ~/.claude/skills/hfg ~/.claude/agents
+mkdir -p ~/.claude/skills/hfg/scripts ~/.claude/agents
 cp skills/hfg/SKILL.md ~/.claude/skills/hfg/SKILL.md
+cp skills/hfg/scripts/hfg_preflight.py ~/.claude/skills/hfg/scripts/hfg_preflight.py
 cp agents/builder.md ~/.claude/agents/builder.md
 ```
 
@@ -114,7 +119,9 @@ GitHub Actions 會在 Python 3.10、3.11、3.12 與 3.13 上執行相同測試�
 1. 讀相關檔案、確認函式名與現況、跑一次既有測試
 2. 列出所有需要拍板的分岔點，屬於「使用者意圖／偏好」的用 `AskUserQuestion` 一次問完
 3. 產出 `plans/HFG_<任務slug>_<日期>.md`
-4. 交付前自我稽核（見 [`skills/hfg/SKILL.md`](skills/hfg/SKILL.md) 的「交付前的機械稽核」一節）
+4. 交付前自我稽核：先跑 `python skills/hfg/scripts/hfg_preflight.py plans/HFG_xxx.md`
+   （把每段 `old_string` 依序模擬套用到檔案副本上、逐字比對，任何一步不是 `OK` 就不准交付），
+   再做 [`skills/hfg/SKILL.md`](skills/hfg/SKILL.md)「交付前的機械稽核」的人工稽核
 5. 若專案裝了 `builder` agent，直接用 Agent tool 派工；沒有的話印出一段開場句，
    讓你自己複製貼到另一個 session
 
@@ -131,8 +138,10 @@ GitHub Actions 會在 Python 3.10、3.11、3.12 與 3.13 上執行相同測試�
   - Git repo 專案——「不准 commit／開分支」這組禁令有沒有真的擋得住，未實測
   - 需要開瀏覽器才能驗收的前端專案——「執行端驗不了的部分歸使用者」這個切法
     在更複雜的 UI 上是否還適用，未實測
-- **沒有「執行端沒停下、自己補完」的反例**。目前記錄到的中斷全部是執行端正確停下，
-  這證明行為契約在測過的情境下有效，但無法說明它在什麼條件下會失效。
+- **「執行端沒停下、自己補完」的反例只有輕微版本**。2026-09 有兩次 `old_string` 縮排差 2 格、Edit 失敗後
+  執行端自行 `cat -A` 比對、改成檔案的縮排再試——結果無害，但它違反契約，而派工者當時把它記成「已正確處理」。
+  這說明契約在「小修」這條邊界上會鬆動，所以 `builder.md` 已補一句「Edit 失敗一次就算找不到」，
+  並把修正放在上游（規劃者的 `hfg_preflight.py`）。至於「自行放寬判準、自行找替代位置」這類嚴重版本，仍沒有反例。
 - **語言**：規劃書模板與說明文字目前全部是繁體中文。方法論本身語言中立，
   但要在英文環境用，模板需要自己翻譯。
 
@@ -169,8 +178,10 @@ MIT，見 [`LICENSE`](LICENSE)。
 
 - [`skills/hfg/SKILL.md`](skills/hfg/SKILL.md)：hfg 規劃 skill
 - [`agents/builder.md`](agents/builder.md)：builder subagent 行為契約
+- [`skills/hfg/scripts/hfg_preflight.py`](skills/hfg/scripts/hfg_preflight.py)：交付前機械預檢——把規劃書第 6 節的 `old_string`／`new_string` 依序模擬套用、逐字比對，也能在續作時判斷每步做了沒（`--applied`）
 - [`examples/HFG_example-env-guards.md`](examples/HFG_example-env-guards.md)：完整規劃書範例
 - [`tests/test_repo.py`](tests/test_repo.py)：repo 品質契約測試，並驗證 Markdown anchor、規劃書 section 與可執行驗收表一致性
+- [`tests/test_preflight.py`](tests/test_preflight.py)：預檢腳本的測試（每種狀態一個案例）
 - [`tests/run_tests.py`](tests/run_tests.py)：本地測試入口
 - [`.github/workflows/ci.yml`](.github/workflows/ci.yml)：GitHub Actions CI
 - [`CONTRIBUTING.md`](CONTRIBUTING.md)：貢獻與驗證規範
